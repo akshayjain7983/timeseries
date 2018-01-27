@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -107,7 +106,7 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
     }
 
     @Override
-    public Set<ZonedDateTime> eventDateTimes()
+    public SortedSet<ZonedDateTime> eventDateTimes()
     {
         return TimeSeriesUtils.extractMultiTimeSeriesEventDateTimes(getEntries());
     }

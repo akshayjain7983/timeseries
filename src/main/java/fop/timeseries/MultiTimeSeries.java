@@ -3,7 +3,6 @@ package fop.timeseries;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.SortedSet;
 
 public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
@@ -35,7 +34,7 @@ public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
 
     public SortedSet<MultiTimeSeries.Entry<E>> getEntries();
     
-    public Set<ZonedDateTime> eventDateTimes();
+    public SortedSet<ZonedDateTime> eventDateTimes();
     
     public Collection<E> events();
 
