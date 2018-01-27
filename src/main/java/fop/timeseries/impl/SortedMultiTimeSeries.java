@@ -1,4 +1,4 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-import org.timeseries.MultiTimeSeries;
+import fop.timeseries.MultiTimeSeries;
 
 public class SortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
 {

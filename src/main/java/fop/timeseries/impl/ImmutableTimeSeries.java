@@ -1,11 +1,11 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.timeseries.TimeSeries;
+import fop.timeseries.TimeSeries;
 
 public final class ImmutableTimeSeries<E> extends AbstractTimeSeries<E>
 {

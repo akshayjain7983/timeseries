@@ -1,4 +1,4 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -12,8 +12,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 
-import org.timeseries.MultiTimeSeries;
-import org.timeseries.util.TimeSeriesUtils;
+import fop.timeseries.MultiTimeSeries;
+import fop.timeseries.util.TimeSeriesUtils;
 
 public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
 {

@@ -1,9 +1,9 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import org.timeseries.TimeSeries;
+import fop.timeseries.TimeSeries;
 
 public class SimpleTimeSeries<E> extends AbstractTimeSeries<E>
 {

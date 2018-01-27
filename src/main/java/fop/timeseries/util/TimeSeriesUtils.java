@@ -1,4 +1,4 @@
-package org.timeseries.util;
+package fop.timeseries.util;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import org.timeseries.MultiTimeSeries;
-import org.timeseries.TimeSeries;
+import fop.timeseries.MultiTimeSeries;
+import fop.timeseries.TimeSeries;
 
 public class TimeSeriesUtils
 {

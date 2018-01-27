@@ -1,4 +1,4 @@
-package org.timeseries.util;
+package fop.timeseries.util;
 
 import java.time.ZoneId;
 

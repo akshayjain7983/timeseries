@@ -1,4 +1,4 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -10,8 +10,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.timeseries.TimeSeries;
-import org.timeseries.util.TimeSeriesUtils;
+import fop.timeseries.TimeSeries;
+import fop.timeseries.util.TimeSeriesUtils;
 
 public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
 {

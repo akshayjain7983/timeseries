@@ -1,4 +1,4 @@
-package org.timeseries;
+package fop.timeseries;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;

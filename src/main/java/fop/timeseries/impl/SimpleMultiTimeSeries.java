@@ -1,11 +1,11 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.timeseries.MultiTimeSeries;
+import fop.timeseries.MultiTimeSeries;
 
 public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
 {

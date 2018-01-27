@@ -1,4 +1,4 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.timeseries.MultiTimeSeries;
+import fop.timeseries.MultiTimeSeries;
 
 public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
 {

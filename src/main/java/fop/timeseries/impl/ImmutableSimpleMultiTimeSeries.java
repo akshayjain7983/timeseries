@@ -1,4 +1,4 @@
-package org.timeseries.impl;
+package fop.timeseries.impl;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.timeseries.MultiTimeSeries;
+import fop.timeseries.MultiTimeSeries;
 
 public class ImmutableSimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
 {
