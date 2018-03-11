@@ -227,4 +227,19 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         }
     }
 
+    protected SortedMap<Instant, MultiTimeSeries.Entry<E>> getTimeSeriesStore()
+    {
+        return timeSeriesStore;
+    }
+
+    protected Function<Comparator<E>, Collection<E>> getEntryCollectionFactory()
+    {
+        return entryCollectionFactory;
+    }
+
+    protected Comparator<E> getEntryCollectionComparator()
+    {
+        return entryCollectionComparator;
+    }
+
 }

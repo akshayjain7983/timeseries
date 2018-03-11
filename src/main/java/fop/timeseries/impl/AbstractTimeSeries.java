@@ -189,4 +189,9 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
             return "[eventDateTime=" + eventDateTime + ", event=" + event + "]";
         }
     }
+
+    protected SortedMap<Instant, TimeSeries.Entry<E>> getTimeSeriesStore()
+    {
+        return timeSeriesStore;
+    }
 }

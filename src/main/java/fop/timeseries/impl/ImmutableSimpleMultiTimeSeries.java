@@ -33,6 +33,11 @@ public class ImmutableSimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
     {
         throw new UnsupportedOperationException("Cannot change ImmutableSimpleMultiTimeSeries");
     }
+    
+    public static <E> Builder<E> builder()
+    {
+        return new Builder<E>();
+    }
 
     public static class Builder<E> 
     {
@@ -41,7 +46,7 @@ public class ImmutableSimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
         private final Collection<MultiTimeSeries.Entry<E>> entries;
         private final AtomicBoolean builderExpired;
         
-        public Builder()
+        private Builder()
         {
             this.entries = new ArrayList<>();
             this.builderExpired = new AtomicBoolean(false);

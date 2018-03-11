@@ -43,6 +43,7 @@ public class SortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
     @Override
     public void add(ZonedDateTime eventDateTime, E event)
     {
+        validateEntryEvent(event);
         super.addToEntry(eventDateTime, event);
     }
 
@@ -56,5 +57,13 @@ public class SortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
     public boolean remove(ZonedDateTime eventDateTime, E event)
     {
         return super.removeEvent(Instant.from(eventDateTime), event);
+    }
+    
+    private void validateEntryEvent(E event) 
+    {
+        if(super.getEntryCollectionComparator() == null && !Comparable.class.isAssignableFrom(event.getClass()))
+        {
+            throw new IllegalArgumentException("MultiTimeSeries is neither initiated with a entryCollectionComparator nor the events are Comparable");
+        }
     }
 }

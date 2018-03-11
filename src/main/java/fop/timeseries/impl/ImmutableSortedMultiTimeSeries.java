@@ -33,6 +33,16 @@ public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
     {
         throw new UnsupportedOperationException("Cannot change ImmutableSortedMultiTimeSeries");
     }
+    
+    public static <E> Builder<E> builder()
+    {
+        return builder(null);
+    }
+    
+    public static <E> Builder<E> builder(Comparator<E> entryCollectionComparator)
+    {
+        return new Builder<E>(entryCollectionComparator);
+    }
 
     public static class Builder<E> 
     {
@@ -42,12 +52,7 @@ public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
         private final AtomicBoolean builderExpired;
         private final Comparator<E> entryCollectionComparator;
         
-        public Builder()
-        {
-            this(null);
-        }
-        
-        public Builder(Comparator<E> entryCollectionComparator)
+        private Builder(Comparator<E> entryCollectionComparator)
         {
             this.entries = new ArrayList<>();
             this.builderExpired = new AtomicBoolean(false);

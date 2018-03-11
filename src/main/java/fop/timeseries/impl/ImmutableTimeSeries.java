@@ -36,7 +36,7 @@ public final class ImmutableTimeSeries<E> extends AbstractTimeSeries<E>
         private final Collection<TimeSeries.Entry<E>> entries;
         private final AtomicBoolean builderExpired;
         
-        public Builder()
+        private Builder()
         {
             this.entries = new ArrayList<>();
             this.builderExpired = new AtomicBoolean(false);
