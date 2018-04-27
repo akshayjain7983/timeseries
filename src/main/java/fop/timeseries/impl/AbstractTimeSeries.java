@@ -3,9 +3,10 @@ package fop.timeseries.impl;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.SortedSet;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -14,7 +15,7 @@ import fop.timeseries.util.TimeSeriesUtils;
 
 public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
 {
-    protected final SortedMap<Instant, TimeSeries.Entry<E>> timeSeriesStore;
+    protected final NavigableMap<Instant, TimeSeries.Entry<E>> timeSeriesStore;
 
     protected AbstractTimeSeries()
     {
@@ -62,13 +63,49 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
     }
     
     @Override
-    public SortedSet<TimeSeries.Entry<E>> getEntries()
+    public NavigableSet<TimeSeries.Entry<E>> getEntries()
     {
-        return isNotEmpty() ? new TreeSet<TimeSeries.Entry<E>>(timeSeriesStore.values()) : null;
+        return isNotEmpty() ? new TreeSet<TimeSeries.Entry<E>>(timeSeriesStore.values()) : Collections.emptyNavigableSet();
     }
     
     @Override
-    public SortedSet<ZonedDateTime> eventDateTimes()
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, boolean fromInclusive, ZonedDateTime toEventDateTime,   boolean toInclusive) 
+    {
+        return getEntries().subSet(new TimeSeriesEntry<E>(fromEventDateTime, null), fromInclusive, new TimeSeriesEntry<E>(toEventDateTime, null), toInclusive);
+    }
+    
+    @Override
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime, boolean inclusive)
+    {
+        return getEntries().headSet(new TimeSeriesEntry<E>(toEventDateTime, null), inclusive);
+    }
+    
+    @Override
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime, boolean inclusive)
+    {
+        return getEntries().tailSet(new TimeSeriesEntry<E>(fromEventDateTime, null), inclusive);
+    }
+    
+    @Override
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, ZonedDateTime toEventDateTime)
+    {
+        return getEntriesSubSet(fromEventDateTime, false, toEventDateTime, false);
+    }
+    
+    @Override
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime)
+    {
+        return getEntriesHeadSet(toEventDateTime, false);
+    }
+
+    @Override
+    public NavigableSet<TimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime)
+    {
+        return getEntriesTailSet(fromEventDateTime, false);
+    }
+    
+    @Override
+    public NavigableSet<ZonedDateTime> eventDateTimes()
     {
         return TimeSeriesUtils.extractTimeSeriesEventDateTimes(getEntries());
     }
@@ -100,7 +137,7 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
     @Override
     public Iterator<TimeSeries.Entry<E>> descendingIterator()
     {
-        return ((TreeSet<TimeSeries.Entry<E>>)getEntries()).descendingIterator();
+        return getEntries().descendingIterator();
     }
 
     @Override
@@ -190,7 +227,7 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
         }
     }
 
-    protected SortedMap<Instant, TimeSeries.Entry<E>> getTimeSeriesStore()
+    protected NavigableMap<Instant, TimeSeries.Entry<E>> getTimeSeriesStore()
     {
         return timeSeriesStore;
     }

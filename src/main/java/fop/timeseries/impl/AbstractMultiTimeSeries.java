@@ -3,38 +3,35 @@ package fop.timeseries.impl;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.SortedSet;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 import fop.timeseries.MultiTimeSeries;
 import fop.timeseries.util.TimeSeriesUtils;
 
 public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
 {
-    private final SortedMap<Instant, MultiTimeSeries.Entry<E>> timeSeriesStore;
-    private final Function<Comparator<E>, Collection<E>> entryCollectionFactory;
-    private final Comparator<E> entryCollectionComparator;
+    private final NavigableMap<Instant, MultiTimeSeries.Entry<E>> timeSeriesStore;
+    private final Supplier<Collection<E>> entryCollectionFactory;
     
-    protected AbstractMultiTimeSeries(Function<Comparator<E>, Collection<E>> entryCollectionFactory, Comparator<E> entryCollectionComparator)
+    protected AbstractMultiTimeSeries(Supplier<Collection<E>> entryCollectionFactory)
     {
         this.timeSeriesStore = new TreeMap<Instant, MultiTimeSeries.Entry<E>>();
         this.entryCollectionFactory = entryCollectionFactory;
-        this.entryCollectionComparator = entryCollectionComparator;
     }
 
-    protected AbstractMultiTimeSeries(MultiTimeSeries<E> timeSeries, Function<Comparator<E>, Collection<E>> entryCollectionFactory, Comparator<E> entryCollectionComparator)
+    protected AbstractMultiTimeSeries(MultiTimeSeries<E> timeSeries, Supplier<Collection<E>> entryCollectionFactory)
     {
-        this(timeSeries.getEntries(), entryCollectionFactory, entryCollectionComparator);
+        this(timeSeries.getEntries(), entryCollectionFactory);
     }
     
-    protected AbstractMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries, Function<Comparator<E>, Collection<E>> entryCollectionFactory, Comparator<E> entryCollectionComparator) 
+    protected AbstractMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries, Supplier<Collection<E>> entryCollectionFactory) 
     {
-        this(entryCollectionFactory, entryCollectionComparator);
+        this(entryCollectionFactory);
         entries.forEach(e->{
             ZonedDateTime eventDateTime = e.getEventDateTime();
             Collection<E> events = e.getEvents();
@@ -57,9 +54,9 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         }
         else
         {
-            MultiTimeSeriesEntry<E> entry = new MultiTimeSeriesEntry<>(eventDateTime, this.entryCollectionFactory.apply(entryCollectionComparator));
+            MultiTimeSeries.Entry<E> entry = createEntry(eventDateTime, this.entryCollectionFactory.get());
             entry.getEvents().add(event);
-            addEntry(entry.getEventInstant(), entry);
+            addEntry(Instant.from(entry.getEventDateTime()), entry);
         }
     }
 
@@ -100,13 +97,49 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
     }
 
     @Override
-    public SortedSet<MultiTimeSeries.Entry<E>> getEntries()
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntries()
     {
         return isNotEmpty() ? new TreeSet<MultiTimeSeries.Entry<E>>(timeSeriesStore.values()) : null;
     }
+    
+    @Override
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, boolean fromInclusive, ZonedDateTime toEventDateTime,   boolean toInclusive) 
+    {
+        return getEntries().subSet(createEntry(fromEventDateTime, null), fromInclusive, createEntry(toEventDateTime, null), toInclusive);
+    }
+    
+    @Override
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime, boolean inclusive)
+    {
+        return getEntries().headSet(createEntry(toEventDateTime, null), inclusive);
+    }
+    
+    @Override
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime, boolean inclusive)
+    {
+        return getEntries().tailSet(createEntry(fromEventDateTime, null), inclusive);
+    }
+    
+    @Override
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, ZonedDateTime toEventDateTime)
+    {
+        return getEntriesSubSet(fromEventDateTime, false, toEventDateTime, false);
+    }
+    
+    @Override
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime)
+    {
+        return getEntriesHeadSet(toEventDateTime, false);
+    }
 
     @Override
-    public SortedSet<ZonedDateTime> eventDateTimes()
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime)
+    {
+        return getEntriesTailSet(fromEventDateTime, false);
+    }
+
+    @Override
+    public NavigableSet<ZonedDateTime> eventDateTimes()
     {
         return TimeSeriesUtils.extractMultiTimeSeriesEventDateTimes(getEntries());
     }
@@ -147,14 +180,18 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         return "MultiTimeSeries:" + getEntries();
     }
     
+    protected MultiTimeSeries.Entry<E> createEntry(ZonedDateTime eventDateTime, Collection<E> events)
+    {
+        return new MultiTimeSeriesEntry<E>(eventDateTime, events);
+    }
+    
     public static class MultiTimeSeriesEntry<E> implements MultiTimeSeries.Entry<E>
     {
-
         private final Instant eventInstant;
         private final ZonedDateTime eventDateTime;
         private final Collection<E> events;
         
-        public MultiTimeSeriesEntry(ZonedDateTime eventDateTime, Collection<E> events)
+        MultiTimeSeriesEntry(ZonedDateTime eventDateTime, Collection<E> events)
         {
             this.eventDateTime = eventDateTime;
             this.eventInstant = Instant.from(eventDateTime);
@@ -227,19 +264,13 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         }
     }
 
-    protected SortedMap<Instant, MultiTimeSeries.Entry<E>> getTimeSeriesStore()
+    protected NavigableMap<Instant, MultiTimeSeries.Entry<E>> getTimeSeriesStore()
     {
         return timeSeriesStore;
     }
 
-    protected Function<Comparator<E>, Collection<E>> getEntryCollectionFactory()
+    protected Supplier<Collection<E>> getEntryCollectionFactory()
     {
         return entryCollectionFactory;
     }
-
-    protected Comparator<E> getEntryCollectionComparator()
-    {
-        return entryCollectionComparator;
-    }
-
 }

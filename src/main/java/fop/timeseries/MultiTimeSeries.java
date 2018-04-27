@@ -3,7 +3,7 @@ package fop.timeseries;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.NavigableSet;
 
 public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
 {
@@ -32,9 +32,21 @@ public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
         return size()>0;
     }
 
-    public SortedSet<MultiTimeSeries.Entry<E>> getEntries();
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntries();
     
-    public SortedSet<ZonedDateTime> eventDateTimes();
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, boolean fromInclusive, ZonedDateTime toEventDateTime,   boolean toInclusive);
+    
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime, boolean inclusive);
+    
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime, boolean inclusive);
+    
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, ZonedDateTime toEventDateTime);
+
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime);
+
+    public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime);
+    
+    public NavigableSet<ZonedDateTime> eventDateTimes();
     
     public Collection<E> events();
 

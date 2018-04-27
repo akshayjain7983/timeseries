@@ -13,7 +13,7 @@ public class ImmutableSimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
 
     private ImmutableSimpleMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries)
     {
-        super(entries, t->new LinkedList<>(), null);
+        super(entries, ()->new LinkedList<>());
     }
 
     @Override

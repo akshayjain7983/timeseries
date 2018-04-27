@@ -1,37 +1,36 @@
 package fop.timeseries.impl;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fop.timeseries.MultiTimeSeries;
+import fop.timeseries.MultiTimeSeriesNavigableEvents;
 
-public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
+public class ImmutableMultiTimeSeriesNavigableEvents<E> extends AbstractMultiTimeSeriesNavigableEvents<E>
 {
-    private ImmutableSortedMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries, Comparator<E> entryCollectionComparator)
+    private ImmutableMultiTimeSeriesNavigableEvents(NavigableSet<MultiTimeSeriesNavigableEvents.Entry<E>> entries, Comparator<E> entryCollectionComparator)
     {
-        super(entries, t->new TreeSet<E>(t), entryCollectionComparator);
+        super(entries, entryCollectionComparator);
     }
 
     @Override
     public void add(ZonedDateTime eventDateTime, E event)
     {
-        throw new UnsupportedOperationException("Cannot change ImmutableSortedMultiTimeSeries");
+        throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesNavigableEvents");
     }
 
     @Override
-    public Collection<E> remove(ZonedDateTime eventDateTime)
+    public NavigableSet<E> remove(ZonedDateTime eventDateTime)
     {
-        throw new UnsupportedOperationException("Cannot change ImmutableSortedMultiTimeSeries");
+        throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesNavigableEvents");
     }
 
     @Override
     public boolean remove(ZonedDateTime eventDateTime, E event)
     {
-        throw new UnsupportedOperationException("Cannot change ImmutableSortedMultiTimeSeries");
+        throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesNavigableEvents");
     }
     
     public static <E> Builder<E> builder()
@@ -48,13 +47,13 @@ public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
     {
         //each entry in this collection will act as simple entry that is it will contain only one event. 
         //When we build the TimeSeries then the constructor will make it Multi
-        private final Collection<MultiTimeSeries.Entry<E>> entries;
+        private final NavigableSet<MultiTimeSeriesNavigableEvents.Entry<E>> entries;
         private final AtomicBoolean builderExpired;
         private final Comparator<E> entryCollectionComparator;
         
         private Builder(Comparator<E> entryCollectionComparator)
         {
-            this.entries = new ArrayList<>();
+            this.entries = new TreeSet<MultiTimeSeriesNavigableEvents.Entry<E>>();
             this.builderExpired = new AtomicBoolean(false);
             this.entryCollectionComparator = entryCollectionComparator;
         }
@@ -62,17 +61,17 @@ public class ImmutableSortedMultiTimeSeries<E> extends AbstractMultiTimeSeries<E
         public void add(ZonedDateTime eventDateTime, E event)
         {
             ensureBuilderValidity();
-            MultiTimeSeriesEntry<E> entry = new MultiTimeSeriesEntry<E>(eventDateTime, new ArrayList<E>(1));
+            MultiTimeSeriesNavigableEventsEntry<E> entry = new MultiTimeSeriesNavigableEventsEntry<E>(eventDateTime, new TreeSet<E>());
             entry.getEvents().add(event);
             entries.add(entry);
         }
         
-        public ImmutableSortedMultiTimeSeries<E> build()
+        public ImmutableMultiTimeSeriesNavigableEvents<E> build()
         {
             ensureBuilderValidity();
             try
             {
-                return new ImmutableSortedMultiTimeSeries<E>(entries, entryCollectionComparator);
+                return new ImmutableMultiTimeSeriesNavigableEvents<E>(entries, entryCollectionComparator);
             }
             finally
             {

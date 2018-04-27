@@ -11,17 +11,17 @@ public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
 {
     public SimpleMultiTimeSeries()
     {
-        super(t->new LinkedList<>(), null);
+        super(()->new LinkedList<>());
     }
 
     public SimpleMultiTimeSeries(MultiTimeSeries<E> timeSeries)
     {
-        super(timeSeries, t->new LinkedList<>(), null);
+        super(timeSeries, ()->new LinkedList<>());
     }
 
     public SimpleMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries)
     {
-        super(entries, t->new LinkedList<>(), null);
+        super(entries, ()->new LinkedList<>());
     }
 
     @Override
