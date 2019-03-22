@@ -7,7 +7,7 @@ import java.util.NavigableSet;
 
 import fop.timeseries.MultiTimeSeriesNavigableEvents;
 
-public class SimpleMultiTimeSeriesNavigableEvents<E> extends AbstractMultiTimeSeriesNavigableEvents<E>
+public class SimpleMultiTimeSeriesNavigableEvents<E> extends AbstractMultiTimeSeriesNavigableEvents<E> implements Cloneable
 {
     public SimpleMultiTimeSeriesNavigableEvents()
     {
@@ -29,14 +29,14 @@ public class SimpleMultiTimeSeriesNavigableEvents<E> extends AbstractMultiTimeSe
         super(entryCollectionComparator);
     }
 
-    public SimpleMultiTimeSeriesNavigableEvents(MultiTimeSeriesNavigableEvents<E> timeSeries, Comparator<E> entryCollectionComparator)
+    public SimpleMultiTimeSeriesNavigableEvents(MultiTimeSeriesNavigableEvents<E> timeSeries, Comparator<E> entryEventsNavigableSetComparator)
     {
-        super(timeSeries, entryCollectionComparator);
+        super(timeSeries, entryEventsNavigableSetComparator);
     }
 
-    public SimpleMultiTimeSeriesNavigableEvents(NavigableSet<MultiTimeSeriesNavigableEvents.Entry<E>> entries, Comparator<E> entryCollectionComparator)
+    public SimpleMultiTimeSeriesNavigableEvents(NavigableSet<MultiTimeSeriesNavigableEvents.Entry<E>> entries, Comparator<E> entryEventsNavigableSetComparator)
     {
-        super(entries, entryCollectionComparator);
+        super(entries, entryEventsNavigableSetComparator);
     }
 
     @Override
@@ -55,5 +55,11 @@ public class SimpleMultiTimeSeriesNavigableEvents<E> extends AbstractMultiTimeSe
     public boolean remove(ZonedDateTime eventDateTime, E event)
     {
         return super.removeEvent(Instant.from(eventDateTime), event);
+    }
+    
+    @Override
+    public SimpleMultiTimeSeriesNavigableEvents<E> clone()
+    {
+        return new SimpleMultiTimeSeriesNavigableEvents<>(this, getEntryEventsNavigableSetComparator());
     }
 }

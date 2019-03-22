@@ -71,19 +71,19 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
     @Override
     public NavigableSet<TimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, boolean fromInclusive, ZonedDateTime toEventDateTime,   boolean toInclusive) 
     {
-        return getEntries().subSet(new TimeSeriesEntry<E>(fromEventDateTime, null), fromInclusive, new TimeSeriesEntry<E>(toEventDateTime, null), toInclusive);
+        return getEntries().subSet(TimeSeriesEntry.of(fromEventDateTime, null), fromInclusive, TimeSeriesEntry.of(toEventDateTime, null), toInclusive);
     }
     
     @Override
     public NavigableSet<TimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime, boolean inclusive)
     {
-        return getEntries().headSet(new TimeSeriesEntry<E>(toEventDateTime, null), inclusive);
+        return getEntries().headSet(TimeSeriesEntry.of(toEventDateTime, null), inclusive);
     }
     
     @Override
     public NavigableSet<TimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime, boolean inclusive)
     {
-        return getEntries().tailSet(new TimeSeriesEntry<E>(fromEventDateTime, null), inclusive);
+        return getEntries().tailSet(TimeSeriesEntry.of(fromEventDateTime, null), inclusive);
     }
     
     @Override
@@ -152,7 +152,12 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
         private final ZonedDateTime eventDateTime;
         private final E event;
 
-        public TimeSeriesEntry(ZonedDateTime eventDateTime, E event)
+        public static <E> TimeSeriesEntry<E> of(ZonedDateTime eventDateTime, E event) 
+        {
+            return new TimeSeriesEntry<>(eventDateTime, event);
+        }
+        
+        TimeSeriesEntry(ZonedDateTime eventDateTime, E event)
         {
             this.eventDateTime = eventDateTime;
             this.eventInstant = Instant.from(eventDateTime);

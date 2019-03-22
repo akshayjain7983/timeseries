@@ -7,7 +7,6 @@ import java.util.NavigableSet;
 
 public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
 {
-
     public void add(ZonedDateTime eventDateTime, E event);
 
     public Collection<E> get(ZonedDateTime eventDateTime);
@@ -57,7 +56,6 @@ public interface MultiTimeSeries<E> extends Iterable<MultiTimeSeries.Entry<E>>
     public Iterator<MultiTimeSeries.Entry<E>> iterator();
 
     public Iterator<MultiTimeSeries.Entry<E>> descendingIterator();
-    
     
     public static interface Entry<E> extends Comparable<Entry<E>>
     {

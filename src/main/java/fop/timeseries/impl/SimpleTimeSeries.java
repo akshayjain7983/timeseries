@@ -16,11 +16,17 @@ public class SimpleTimeSeries<E> extends AbstractTimeSeries<E>
     {
         super(timeSeries);
     }
+    
+    @Override
+    public SimpleTimeSeries<E> clone()
+    {
+        return new SimpleTimeSeries<>(this);
+    }
 
     @Override
     public void add(ZonedDateTime eventDateTime, E event)
     {
-        TimeSeriesEntry<E> entry = new TimeSeriesEntry<E>(eventDateTime, event);
+        TimeSeriesEntry<E> entry = TimeSeriesEntry.of(eventDateTime, event);
         super.addEntry(entry.getEventInstant(), entry);
     }
 

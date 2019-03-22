@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import fop.timeseries.MultiTimeSeries;
 
-public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
+public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E> implements Cloneable
 {
     public SimpleMultiTimeSeries()
     {
@@ -40,5 +40,11 @@ public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E>
     public boolean remove(ZonedDateTime eventDateTime, E event)
     {
         return super.removeEvent(Instant.from(eventDateTime), event);
+    }
+    
+    @Override
+    public SimpleMultiTimeSeries<E> clone()
+    {
+        return new SimpleMultiTimeSeries<>(this);
     }
 }

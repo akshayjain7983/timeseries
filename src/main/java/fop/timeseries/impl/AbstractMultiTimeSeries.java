@@ -3,9 +3,13 @@ package fop.timeseries.impl;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Supplier;
@@ -47,17 +51,14 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
     protected void addToEntry(ZonedDateTime eventDateTime, E event)
     {
         Instant eventInstant = Instant.from(eventDateTime);
+        Collection<E> entryCollection = null;
         if(timeSeriesStore.containsKey(eventInstant))
         {
-            MultiTimeSeries.Entry<E> entry = timeSeriesStore.get(eventInstant);
-            entry.getEvents().add(event);
+            entryCollection = timeSeriesStore.get(eventInstant).getEvents();
         }
-        else
-        {
-            MultiTimeSeries.Entry<E> entry = createEntry(eventDateTime, this.entryCollectionFactory.get());
-            entry.getEvents().add(event);
-            addEntry(Instant.from(entry.getEventDateTime()), entry);
-        }
+        
+        MultiTimeSeries.Entry<E> entry = createEntry(eventDateTime, entryCollection, event);
+        addEntry(eventInstant, entry);
     }
 
     protected Collection<E> removeEntry(Instant eventInstant)
@@ -105,19 +106,19 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
     @Override
     public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesSubSet(ZonedDateTime fromEventDateTime, boolean fromInclusive, ZonedDateTime toEventDateTime,   boolean toInclusive) 
     {
-        return getEntries().subSet(createEntry(fromEventDateTime, null), fromInclusive, createEntry(toEventDateTime, null), toInclusive);
+        return getEntries().subSet(createEntry(fromEventDateTime, null, null), fromInclusive, createEntry(toEventDateTime, null, null), toInclusive);
     }
     
     @Override
     public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesHeadSet(ZonedDateTime toEventDateTime, boolean inclusive)
     {
-        return getEntries().headSet(createEntry(toEventDateTime, null), inclusive);
+        return getEntries().headSet(createEntry(toEventDateTime, null, null), inclusive);
     }
     
     @Override
     public NavigableSet<MultiTimeSeries.Entry<E>> getEntriesTailSet(ZonedDateTime fromEventDateTime, boolean inclusive)
     {
-        return getEntries().tailSet(createEntry(fromEventDateTime, null), inclusive);
+        return getEntries().tailSet(createEntry(fromEventDateTime, null, null), inclusive);
     }
     
     @Override
@@ -180,9 +181,20 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         return "MultiTimeSeries:" + getEntries();
     }
     
-    protected MultiTimeSeries.Entry<E> createEntry(ZonedDateTime eventDateTime, Collection<E> events)
+    protected MultiTimeSeries.Entry<E> createEntry(ZonedDateTime eventDateTime, Collection<E> events, E event)
     {
-        return new MultiTimeSeriesEntry<E>(eventDateTime, events);
+        Collection<E> newEventsCollection = entryCollectionFactory.get();
+        if(Objects.nonNull(events))
+        {
+            newEventsCollection.addAll(events);
+        }
+        
+        if(Objects.nonNull(event))
+        {
+            newEventsCollection.add(event);
+        }
+        
+        return MultiTimeSeriesEntry.of(eventDateTime, newEventsCollection);
     }
     
     public static class MultiTimeSeriesEntry<E> implements MultiTimeSeries.Entry<E>
@@ -191,11 +203,37 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
         private final ZonedDateTime eventDateTime;
         private final Collection<E> events;
         
+        public static <E> MultiTimeSeriesEntry<E> of(ZonedDateTime eventDateTime, Collection<E> events)
+        {
+            return new MultiTimeSeriesEntry<>(eventDateTime, events);
+        }
+        
         MultiTimeSeriesEntry(ZonedDateTime eventDateTime, Collection<E> events)
         {
             this.eventDateTime = eventDateTime;
             this.eventInstant = Instant.from(eventDateTime);
-            this.events = events;
+            this.events = setupEvents(events);
+        }
+
+        private Collection<E> setupEvents(Collection<E> events)
+        {
+            Class<?> eventsCollectionClass = events.getClass();
+            if(List.class.isAssignableFrom(eventsCollectionClass))
+            {
+                return Collections.unmodifiableList((List<E>)events);
+            }
+            
+            if(NavigableSet.class.isAssignableFrom(eventsCollectionClass))
+            {
+                return Collections.unmodifiableNavigableSet((NavigableSet<E>)events);
+            }
+            
+            if(SortedSet.class.isAssignableFrom(eventsCollectionClass))
+            {
+                return Collections.unmodifiableSortedSet((SortedSet<E>)events);
+            }
+            
+            return Collections.unmodifiableCollection(events);
         }
 
         public ZonedDateTime getEventDateTime()
@@ -208,7 +246,7 @@ public abstract class AbstractMultiTimeSeries<E> implements MultiTimeSeries<E>
             return events;
         }
 
-        Instant getEventInstant()
+        public Instant getEventInstant()
         {
             return eventInstant;
         }
