@@ -3,48 +3,55 @@ package fop.timeseries.impl;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-import fop.timeseries.MultiTimeSeries;
+import fop.timeseries.TimeSeries;
 
-public class SimpleMultiTimeSeries<E> extends AbstractMultiTimeSeries<E> implements Cloneable
+public class SimpleMultiTimeSeries<E, C extends Collection<E>> extends AbstractMultiTimeSeries<E, C>
 {
     public SimpleMultiTimeSeries()
     {
-        super(()->new LinkedList<>());
+        super();
+    }
+    
+    public SimpleMultiTimeSeries(Collection<Entry<C>> entries, Supplier<C> entryCollectionFactory)
+    {
+        super(entries, entryCollectionFactory);
     }
 
-    public SimpleMultiTimeSeries(MultiTimeSeries<E> timeSeries)
+    public SimpleMultiTimeSeries(Supplier<C> entryCollectionFactory)
     {
-        super(timeSeries, ()->new LinkedList<>());
+        super(entryCollectionFactory);
     }
 
-    public SimpleMultiTimeSeries(Collection<MultiTimeSeries.Entry<E>> entries)
+    public SimpleMultiTimeSeries(TimeSeries<C> timeSeries, Supplier<C> entryCollectionFactory)
     {
-        super(entries, ()->new LinkedList<>());
-    }
-
-    @Override
-    public void add(ZonedDateTime eventDateTime, E event)
-    {
-        super.addToEntry(eventDateTime, event);
-    }
-
-    @Override
-    public Collection<E> remove(ZonedDateTime eventDateTime)
-    {
-        return super.removeEntry(Instant.from(eventDateTime));
-    }
-
-    @Override
-    public boolean remove(ZonedDateTime eventDateTime, E event)
-    {
-        return super.removeEvent(Instant.from(eventDateTime), event);
+        super(timeSeries, entryCollectionFactory);
     }
     
     @Override
-    public SimpleMultiTimeSeries<E> clone()
+    public void addEvent(ZonedDateTime eventDateTime, E event) 
     {
-        return new SimpleMultiTimeSeries<>(this);
+        C collection = get(eventDateTime);
+        if(Objects.isNull(collection)) {
+            collection = entryCollectionFactory.get();
+            add(eventDateTime, collection);
+        }
+        
+        collection.add(event);
+    }
+
+    @Override
+    public void add(ZonedDateTime eventDateTime, C event)
+    {
+        TimeSeriesEntry<C> entry = TimeSeriesEntry.of(eventDateTime, event);
+        super.addEntry(entry.getEventInstant(), entry);        
+    }
+
+    @Override
+    public C remove(ZonedDateTime eventDateTime)
+    {
+        return super.removeEntry(Instant.from(eventDateTime));
     }
 }

@@ -3,7 +3,6 @@ package fop.timeseries.impl;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -65,7 +64,7 @@ public abstract class AbstractTimeSeries<E> implements TimeSeries<E>
     @Override
     public NavigableSet<TimeSeries.Entry<E>> getEntries()
     {
-        return isNotEmpty() ? new TreeSet<TimeSeries.Entry<E>>(timeSeriesStore.values()) : Collections.emptyNavigableSet();
+        return isNotEmpty() ? new TreeSet<TimeSeries.Entry<E>>(timeSeriesStore.values()) : new TreeSet<TimeSeries.Entry<E>>();
     }
     
     @Override

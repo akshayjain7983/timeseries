@@ -1,136 +1,61 @@
 package fop.timeseries.impl;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import fop.timeseries.ImmutableMultiTimeSeries;
-import fop.timeseries.MultiTimeSeries;
+import fop.timeseries.util.ImmutableBuilders;
 
-public class ImmutableMultiTimeSeriesImpl<E> extends AbstractMultiTimeSeries<E> implements ImmutableMultiTimeSeries<E>, Cloneable
+public final class ImmutableMultiTimeSeriesImpl<E, C extends Collection<E>> extends AbstractMultiTimeSeries<E, C> implements ImmutableMultiTimeSeries<E, C>
 {
-
-    private ImmutableMultiTimeSeriesImpl(Collection<MultiTimeSeries.Entry<E>> entries)
+    public ImmutableMultiTimeSeriesImpl(Collection<Entry<C>> entries, Supplier<C> entryCollectionFactory)
     {
-        super(entries, ()->new LinkedList<>());
+        super(entryCollectionFactory);
+        entries.forEach(e->addEntry(Instant.from(e.getEventDateTime()), e));
     }
-
+    
     @Override
-    public void add(ZonedDateTime eventDateTime, E event)
+    public void addEvent(ZonedDateTime eventDateTime, E event) 
     {
         throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesImpl");
     }
 
     @Override
-    public Collection<E> remove(ZonedDateTime eventDateTime)
+    public void add(ZonedDateTime eventDateTime, C eventCollection)
     {
         throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesImpl");
     }
 
     @Override
-    public boolean remove(ZonedDateTime eventDateTime, E event)
+    public C remove(ZonedDateTime eventDateTime)
     {
         throw new UnsupportedOperationException("Cannot change ImmutableMultiTimeSeriesImpl");
     }
 
     @Override
-    public ImmutableMultiTimeSeries<E> with(ZonedDateTime eventDateTime, E event)
+    public ImmutableMultiTimeSeries<E, C> with(ZonedDateTime eventDateTime, E event)
     {
-        return ImmutableMultiTimeSeriesImpl.<E>builder().add(getEntries()).add(eventDateTime, event).build();
+        return ImmutableBuilders.<E, C>multiBuilder().entryCollectionFactory(getEntryCollectionFactory()).add(eventDateTime, event).build();
     }
 
     @Override
-    public ImmutableMultiTimeSeries<E> with(ZonedDateTime eventDateTime, Collection<E> events)
+    public ImmutableMultiTimeSeries<E, C> with(ZonedDateTime eventDateTime, C eventCollection)
     {
-        return ImmutableMultiTimeSeriesImpl.<E>builder().add(getEntries()).add(eventDateTime, events).build();
-    }
-    
-    @Override
-    public ImmutableMultiTimeSeries<E> with(MultiTimeSeries.Entry<E> entry)
-    {
-        return ImmutableMultiTimeSeriesImpl.<E>builder().add(getEntries()).add(entry).build();
+        return ImmutableBuilders.<E, C>multiBuilder().entryCollectionFactory(getEntryCollectionFactory()).add(eventDateTime, eventCollection).build();
     }
 
     @Override
-    public ImmutableMultiTimeSeries<E> with(Collection<Entry<E>> entries)
+    public ImmutableMultiTimeSeries<E, C> with(Entry<C> entry)
     {
-        return ImmutableMultiTimeSeriesImpl.<E>builder().add(getEntries()).add(entries).build();
-    }
-    
-    @Override
-    public ImmutableMultiTimeSeriesImpl<E> clone()
-    {
-        return new ImmutableMultiTimeSeriesImpl<E>(getEntries());
-    }
-    
-    public static <E> Builder<E> builder()
-    {
-        return new Builder<E>();
+        return ImmutableBuilders.<E, C>multiBuilder().entryCollectionFactory(getEntryCollectionFactory()).add(entry).build();
     }
 
-    public static class Builder<E> 
+    @Override
+    public ImmutableMultiTimeSeries<E, C> with(Collection<Entry<C>> entries)
     {
-        //each entry in this collection will act as simple entry that is it will contain only one event. 
-        //When we build the TimeSeries then the constructor will make it Multi
-        private final Collection<MultiTimeSeries.Entry<E>> entries;
-        private final AtomicBoolean builderExpired;
-        
-        private Builder()
-        {
-            this.entries = new ArrayList<>();
-            this.builderExpired = new AtomicBoolean(false);
-        }
-        
-        public Builder<E> add(ZonedDateTime eventDateTime, E event)
-        {
-            ensureBuilderValidity();
-            entries.add(MultiTimeSeriesEntry.of(eventDateTime, Arrays.asList(event)));
-            return this;
-        }
-        
-        public Builder<E> add(ZonedDateTime eventDateTime, Collection<E> events)
-        {
-            ensureBuilderValidity();
-            entries.add(MultiTimeSeriesEntry.of(eventDateTime, events));
-            return this;
-        }
-        
-        public Builder<E> add(MultiTimeSeries.Entry<E> entry)
-        {
-            ensureBuilderValidity();
-            entries.add(entry);
-            return this;
-        }
-        
-        public Builder<E> add(Collection<MultiTimeSeries.Entry<E>> entries)
-        {
-            ensureBuilderValidity();
-            this.entries.addAll(entries);
-            return this;
-        }
-        
-        public ImmutableMultiTimeSeriesImpl<E> build()
-        {
-            ensureBuilderValidity();
-            try
-            {
-                return new ImmutableMultiTimeSeriesImpl<E>(entries);
-            }
-            finally
-            {
-                builderExpired.set(true);
-            }
-        }
-        
-        private void ensureBuilderValidity()
-        {
-            if(builderExpired.get())
-            {
-                throw new IllegalStateException("Builder already used to build once. Create a new builder");
-            }
-        }
+        return ImmutableBuilders.<E, C>multiBuilder().entryCollectionFactory(getEntryCollectionFactory()).add(entries).build();
     }
+
 }
